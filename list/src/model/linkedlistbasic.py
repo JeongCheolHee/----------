@@ -1,6 +1,7 @@
 # LinkedListBasic 구현
-
-from .listnode import ListNode
+import sys
+sys.path.append('c:\\Users\\USER\\structure-3')
+from list.src.model.listnode import ListNode
 
 class LinkedListBasic:
     def __init__(self):

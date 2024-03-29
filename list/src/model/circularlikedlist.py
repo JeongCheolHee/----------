@@ -1,4 +1,8 @@
-from list.src.listnode import ListNode
+import sys
+sys.path.append('c:\\Users\\USER\\structure-3')
+
+
+from list.src.model.listnode import ListNode
 
 class CircularLinkedList:
     def __init__(self):

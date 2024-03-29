@@ -1,5 +1,8 @@
-from src.linkedlistbasic import LinkedListBasic
-from src.circularlikedlist import CircularLinkedList
+import sys
+sys.path.append('c:\\Users\\USER\\structure-3')
+
+from list.src.model.linkedlistbasic import LinkedListBasic
+from list.src.model.circularlikedlist import CircularLinkedList
 
 
 if __name__ == "__main__":
