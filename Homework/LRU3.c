@@ -1,175 +1,159 @@
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-class ListNode {
-public:
-    int item;
-    ListNode* next;
+typedef struct ListNode {
+    char item[50];
+    struct ListNode *next;
+} ListNode;
 
-    ListNode(int item, ListNode* nextNode = nullptr) : item(item), next(nextNode) {}
-};
-
-class CircularLinkedList {
-public:
-    ListNode* tail;
+typedef struct {
+    ListNode *tail;
     int numItems;
+} CircularLinkedList;
 
-    CircularLinkedList() : tail(new ListNode(0)), numItems(0) {
-        tail->next = tail;
+void initList(CircularLinkedList *list);
+void append(CircularLinkedList *list, char *newItem);
+int removeItem(CircularLinkedList *list, char *item);
+int size(CircularLinkedList *list);
+ListNode* getNode(CircularLinkedList *list, int i);
+void clearList(CircularLinkedList *list);
+int contains(CircularLinkedList *list, char *item);
+
+void initList(CircularLinkedList *list) {
+    list->tail = NULL;
+    list->numItems = 0;
+}
+
+void append(CircularLinkedList *list, char *newItem) {
+    ListNode *newNode = malloc(sizeof(ListNode));
+    strcpy(newNode->item, newItem);
+    if (list->numItems == 0) {
+        newNode->next = newNode;
+        list->tail = newNode;
+    } else {
+        newNode->next = list->tail->next;
+        list->tail->next = newNode;
+        list->tail = newNode;
     }
+    list->numItems++;
+}
 
-    ~CircularLinkedList() {
-        clear();
-        delete tail;
-    }
-
-    void insert(int i, int newItem) {
-        if (i < 0 || i > numItems) {
-            std::cerr << "Index out of bounds" << std::endl;
-            return;
-        }
-        ListNode* newNode = new ListNode(newItem, nullptr);
-        if (i == 0) {
-            newNode->next = tail->next;
-            tail->next = newNode;
-            if (numItems == 0) tail = newNode;
-        }
-        else {
-            ListNode* prev = getNode(i - 1);
-            newNode->next = prev->next;
-            prev->next = newNode;
-            if (i == numItems) tail = newNode;
-        }
-        numItems++;
-    }
-
-    void append(int newItem) {
-        insert(numItems, newItem);
-    }
-
-    int pop(int i) {
-        if (numItems == 0) {
-            std::cerr << "List is empty" << std::endl;
-            return -1;
-        }
-        if (i < 0 || i >= numItems) {
-            std::cerr << "Index out of bounds" << std::endl;
-            return -1;
-        }
-        ListNode* prev = (i == 0) ? tail : getNode(i - 1);
-        ListNode* toRemove = prev->next;
-        int removedItem = toRemove->item;
-        prev->next = toRemove->next;
-        if (i == 0) tail->next = toRemove->next;
-        if (i == numItems - 1) tail = prev;
-        delete toRemove;
-        numItems--;
-        return removedItem;
-    }
-
-    ListNode* getNode(int i) {
-        if (i < 0 || i >= numItems) return nullptr;
-        ListNode* current = tail->next;
-        for (int k = 0; k < i; ++k) {
-            current = current->next;
-        }
-        return current;
-    }
-
-    void printList() {
-        ListNode* current = tail->next;
-        if (numItems == 0) {
-            std::cout << "List is empty." << std::endl;
-            return;
-        }
-        do {
-            std::cout << current->item << " ";
-            current = current->next;
-        } while (current != tail->next);
-        std::cout << std::endl;
-    }
-
-    void clear() {
-        while (numItems > 0) {
-            pop(0);
-        }
-    }
-};
-
-class LRUCacheSimulator {
-public:
-    int cache_slots;
-    CircularLinkedList* cache;
-    int cache_hit;
-    int tot_cnt;
-
-    LRUCacheSimulator(int slots) : cache_slots(slots), cache_hit(0), tot_cnt(0) {
-        cache = new CircularLinkedList();
-    }
-
-    ~LRUCacheSimulator() {
-        delete cache;
-    }
-
-    void do_sim(int page) {
-        tot_cnt++;
-        bool found = false;
-        ListNode* current = cache->tail->next;
-        int index = 0;
-
-        for (int i = 0; current != cache->tail; current = current->next, ++i) {
-            if (current->item == page) {
-                found = true;
-                index = i;
-                break;
+int removeItem(CircularLinkedList *list, char *item) {
+    if (list->numItems == 0) return 0;
+    ListNode *current = list->tail->next;
+    ListNode *prev = list->tail;
+    do {
+        if (strcmp(current->item, item) == 0) {
+            if (current == prev) {
+                list->tail = NULL;
+            } else {
+                prev->next = current->next;
+                if (current == list->tail) {
+                    list->tail = prev;
+                }
             }
-        }
-
-        if (found) {
-            cache_hit++;
-            cache->pop(index);
-            cache->append(page);
-        }
-        else {
-            if (cache->numItems >= cache_slots) {
-                cache->pop(0);
-            }
-            cache->append(page);
-        }
-    }
-
-    void print_stats() {
-        double hit_ratio = (tot_cnt > 0) ? static_cast<double>(cache_hit) / tot_cnt : 0;
-        std::cout << "Cache slots: " << cache_slots
-            << ", Cache hits: " << cache_hit
-            << ", Hit ratio: " << hit_ratio << std::endl;
-    }
-};
-
-int main() {
-    for (int cache_slots = 100; cache_slots <= 1000; cache_slots += 100) {
-        LRUCacheSimulator cache_sim(cache_slots);
-
-        std::ifstream data_file("C:\\Users\\USER\\source\\repos\\Project1\\linkbench.trc");  // 파일 경로를 확인하십시오.
-        if (!data_file.is_open()) {
-            std::cerr << "파일을 열 수 없습니다: linkbench.trc" << std::endl;
+            free(current);
+            list->numItems--;
             return 1;
         }
+        prev = current;
+        current = current->next;
+    } while (current != list->tail->next);
+    return 0;
+}
 
-        std::string line;
-        while (std::getline(data_file, line)) {
-            std::istringstream iss(line);
-            int page;
-            while (iss >> page) {
-                cache_sim.do_sim(page);
-            }
-        }
-        data_file.close();
+int size(CircularLinkedList *list) {
+    return list->numItems;
+}
 
-        std::cout << "실험결과\n캐시 크기: " << cache_slots;
-        cache_sim.print_stats();
+ListNode* getNode(CircularLinkedList *list, int i) {
+    if (i < 0 || i >= list->numItems) {
+        return NULL;
     }
+    ListNode *current = list->tail->next;
+    for (int index = 0; index < i; index++) {
+        current = current->next;
+    }
+    return current;
+}
+
+void clearList(CircularLinkedList *list) {
+    while (list->numItems > 0) {
+        ListNode *temp = list->tail->next;
+        if (list->tail == temp) {
+            list->tail = NULL;
+        } else {
+            list->tail->next = temp->next;
+        }
+        free(temp);
+        list->numItems--;
+    }
+}
+
+int contains(CircularLinkedList *list, char *item) {
+    if (list->numItems == 0) return 0;
+    ListNode *current = list->tail->next;
+    do {
+        if (strcmp(current->item, item) == 0) {
+            return 1;
+        }
+        current = current->next;
+    } while (current != list->tail->next);
+    return 0;
+}
+
+typedef struct {
+    CircularLinkedList cache;
+    int cache_slots;
+    int cache_hit;
+    int tot_cnt;
+} CacheSimulator;
+
+void initCacheSimulator(CacheSimulator *sim, int slots) {
+    initList(&sim->cache);
+    sim->cache_slots = slots;
+    sim->cache_hit = 0;
+    sim->tot_cnt = 0;
+}
+
+void do_sim(CacheSimulator *sim, char *page) {
+    if (contains(&sim->cache, page)) {
+        sim->cache_hit++;
+        removeItem(&sim->cache, page);
+    } else if (size(&sim->cache) == sim->cache_slots) {
+        ListNode *nodeToRemove = getNode(&sim->cache, 0);
+        if (nodeToRemove != NULL) {
+            removeItem(&sim->cache, nodeToRemove->item);
+        }
+    }
+    append(&sim->cache, page);
+    sim->tot_cnt++;
+}
+
+void print_stats(CacheSimulator *sim) {
+    printf("cache_slot = %d cache_hit = %d hit ratio = %f\n", sim->cache_slots, sim->cache_hit, (double)sim->cache_hit / sim->tot_cnt);
+}
+
+int main(void) {
+    FILE *data_file = fopen("C:/Users/USER/source/repos/Project1/linkbench.trc", "r");
+    char line[1024];
+    if (!data_file) {
+        perror("File opening failed");
+        return EXIT_FAILURE;
+    }
+
+    for (int cache_slots = 100; cache_slots <= 1000; cache_slots += 100) {
+        CacheSimulator cache_sim;
+        initCacheSimulator(&cache_sim, cache_slots);
+        while (fgets(line, sizeof(line), data_file)) {
+            char *page = strtok(line, " \n");
+            do_sim(&cache_sim, page);
+        }
+        print_stats(&cache_sim);
+        fseek(data_file, 0, SEEK_SET);
+        clearList(&cache_sim.cache);
+    }
+    fclose(data_file);
     return 0;
 }
