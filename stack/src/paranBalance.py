@@ -1,4 +1,4 @@
-from .Liststack import liststack
+from Liststack import liststack
 
 def paranBalance(s):
     st = liststack()

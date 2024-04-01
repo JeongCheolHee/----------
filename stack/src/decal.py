@@ -1,4 +1,4 @@
-from .Liststack import liststack
+from Liststack import liststack
 
 def decal(s):
     st = liststack()

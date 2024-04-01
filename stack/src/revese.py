@@ -1,4 +1,4 @@
-from .Liststack import liststack
+from Liststack import liststack
 
 def reverse(str):
     st = liststack()
@@ -10,4 +10,4 @@ def reverse(str):
     return out
 
 
-(reverse("Test1234"))
+print(reverse("Test1234"))
