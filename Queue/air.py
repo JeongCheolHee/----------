@@ -4,11 +4,6 @@
 
 from src.ListQueue import *
 
-class Customer:
-    def __init__(self, name, grade):
-        self.name = name
-        self.grade = grade
-
 def boarding(customers):
     normal = ListQueue()
     gold = ListQueue()
@@ -16,28 +11,25 @@ def boarding(customers):
     
     # 올바른 속성과 값을 사용하여 등급별로 분류
     for customer in customers:
-        if customer.grade == 'normal':
-            normal.enqueue(customer)
-        elif customer.grade == 'gold': 
-            gold.enqueue(customer)
-        elif customer.grade == 'platinum': 
-            platinum.enqueue(customer)
+            if customer[0] == '1':
+                normal.enqueue(customer)
+            elif customer[0] == '2': 
+                gold.enqueue(customer)
+            elif customer[0] == '3': 
+                platinum.enqueue(customer)
     
     # 등급별로 탑승 처리
     for queue in [platinum, gold, normal]:
         while not queue.isEmpty():
             customer = queue.dequeue()
-            print(f"{customer.name} ({customer.grade}) 탑승했습니다.")
+            print(f"{customer[1]} 님이 탑승했습니다 ({customer[0]} grade)")
 
-# 고객 객체 생성 시 'platinum' 사용
-customers = [
-    Customer("CheolHee", "platinum"),
-    Customer("kevin", "normal"),
-    Customer("charie", "gold"),
-    Customer("namie", "gold"),
-    Customer("chawon", "platinum"),
-    Customer("hanni", "platinum")
-]
+customers = []
+with open("C:/Users/USER/structure-3/Queue/data/customer.txt", 'r') as file:
+    lines = file.readlines()
+    for line in lines:
+        customer = line.split()
+        customers.append(customer)
 
 boarding(customers)
 
