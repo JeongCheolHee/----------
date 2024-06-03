@@ -36,8 +36,8 @@ class Heap:
     def __percolateDown(self, i : int):
         child = 2 * i  + 1
         right = 2 * i  + 2 
-        if (child <= len(self.__A)-1):
-            if (right <= len(self.__A) - 1 and self.__A[child] < self.__A[right]):
+        if (child <= len(self.__A)-1):  # 왼쪽 노드가 실제로 존재하는지, 범위를 벗어나지 않았는지 확인
+            if (right <= len(self.__A) - 1 and self.__A[child] < self.__A[right]): # 오른쪽 노드가 있고 오른쪽 노드가  더 크다면 왼 오 바꿈
                 child = right
             if self.__A[i] < self.__A[child]:
                 self.__A[i], self.__A[child] = self.__A[child], self.__A[i]
@@ -49,7 +49,7 @@ class Heap:
     
     # 힙 만들기 
     def buildHeap(self):
-        for i in range((len(self.__A) - 2) // 2,-1,-1):
+        for i in range((len(self.__A) - 2) // 2,-1,-1): # 마지막 부모노드부터 시작, 가장 마지막 노드 인덱스 : len(A) -1 그의 부모 : len(A) - 2 // 2, 몫만 사용하므로  //
             self.__percolateDown(i)
         
     # 힙이 비었는지 확인하기

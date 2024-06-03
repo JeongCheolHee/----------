@@ -1,8 +1,8 @@
 # Heap 구현
-import sys
-sys.path.append('c:\\Users\\USER\\structure-3\\Heap\\src')
+#import sys
+#sys.path.append('c:\\Users\\USER\\structure-3\\Heap\\src')
 
-class Heap:
+class MinHeap:
     def __init__(self, *args):
         if len(args) != 0:
             self.__A = args[0]
@@ -24,10 +24,10 @@ class Heap:
             
     def deleteMin(self):
         if (not self.isEmpty()):
-            max = self.__A[0]
+            min = self.__A[0]
             self.__A[0] = self.__A.pop()
             self.__percolateDown(0)
-            return max
+            return min
         else:
             return None
         
@@ -39,11 +39,11 @@ class Heap:
         if (child <= len(self.__A)-1):
             if (right <= len(self.__A) - 1 and self.__A[child] > self.__A[right]):
                 child = right
-            if self.__A[i] < self.__A[child]:
+            if self.__A[i] > self.__A[child]:
                 self.__A[i], self.__A[child] = self.__A[child], self.__A[i]
                 self.__percolateDown(child)
                 
-    def max(self):
+    def min(self):
         return self.__A[0]
     
     
@@ -73,28 +73,3 @@ class Heap:
             print(self.__A[i], end=' ')
         print("\n" + "=" * 25)
     
-        
-
-
-        
-        
-
-    
-    
-                        
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-

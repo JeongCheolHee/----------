@@ -1,7 +1,57 @@
+import sys
+sys.path.append('c:\\Users\\USER\\structure-3') 
+from Heap.src.minHeap import MinHeap
 
-# MinHeap 이 정확히 동작하는지 검증 
-# class 로 lpn 과 frequency 를 함께 유지하는 구조체를 만들어 사용하면 편리. 
-# 파이썬에서 지원하는 “연산자 오버로딩”을 참고하면 쉽게 구현 가능 
-# buildHeap 은 사용할 필요가 없음 (이것 사용 시 시간복잡도가 크게 증가하므로 감점 대상이 될 수 있음) 
-# Frequency 는 프로그램 시작부터 종료까지 모두 유지해야 함 (cache 적재와 무관하게)  = 리셋 하지말라
-# pdf 파일로 제출하지 않을 경우 감점 대상임
+# 캐시 항목을 포함하는 클래스 필요, 여기에는 lpn과 frequency가 포함
+class CacheEntry:
+    def __init__(self, lpn, frequency):
+        self.lpn = lpn
+        self.frequency = frequency
+
+    # MinHeap 삽입/정렬을 위한 작은 연산자 구현
+    def __lt__(self, other):
+        return self.frequency < other.frequency
+
+# lfu_sim 함수 내에서 이 클래스를 사용
+def lfu_sim(cache_slots):
+    cache_hit = 0  # 캐시 히트 횟수
+    tot_cnt = 0    # 전체 요청 횟수
+    cache = {}     # CacheEntry 객체를 저장
+    frequency_dict = {} # 모든 lpn의 빈도를 추적, 캐시에 있는 것만 아님
+    heap = MinHeap()    # MinHeap 인스턴스
+
+    # 데이터 파일 열기
+    data_file = open("C:/Users/USER/structure-3/Homework/data/linkbench2.trc")
+
+    for line in data_file.readlines():
+        lpn = line.split()[0]
+        tot_cnt += 1
+
+        # 빈도 업데이트
+        if lpn in frequency_dict:
+            frequency_dict[lpn] += 1
+        else:
+            frequency_dict[lpn] = 1
+
+        # 캐시에 있다면, 히트
+        if lpn in cache:
+            cache_hit += 1
+            # 캐시 항목 업데이트 및 힙 속성 유지를 위해 아래로 퍼지기
+        else:
+            # 캐시가 가득 찼다면, 가장 자주 사용되지 않는 항목 제거
+            if len(cache) >= cache_slots:
+                removed = heap.deleteMin()
+                del cache[removed.lpn]
+            # 캐시 및 힙에 새 lpn 삽입
+            entry = CacheEntry(lpn, frequency_dict[lpn])
+            cache[lpn] = entry
+            heap.insert(entry)
+
+    data_file.close()
+    # 이 시뮬레이션의 히트 비율을 반환
+    return cache_hit / tot_cnt
+
+if __name__ == "__main__":
+    for cache_slots in range(100, 1000, 100):
+        hit_ratio = lfu_sim(cache_slots)
+        print("cache_slot =", cache_slots, "cache_hit = ", int(hit_ratio*100000) ,"hit ratio =", hit_ratio)

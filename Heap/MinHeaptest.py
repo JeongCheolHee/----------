@@ -2,7 +2,7 @@ from src.minHeap import *
 
 # Print('Heap')
 
-h1 = Heap([1, 11, 9, 2, 3])
+h1 = MinHeap([1, 11, 9, 2, 3])
 h1.buildHeap()
 h1.heapPrint()
 h1.insert(7)
